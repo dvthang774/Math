@@ -11,6 +11,7 @@ from scipy import stats
 from scipy.stats import kstest
 
 
+
 class proj2:
     def __init__(self, data):
         self.data = data
@@ -35,7 +36,7 @@ class proj2:
         
     def hist(self):
         plt.figure()
-        ax = sns.distplot(self.data)
+        ax = sns.displot(self.data)
         plt.axvline(np.mean(self.data), color="r", linestyle="dashed", linewidth=5)
         _, max_ = plt.ylim()
         plt.text(
@@ -71,17 +72,14 @@ class proj2:
             
     def kstest(self):
         print('kiểm định kstest:')
-        stat, p = kstest(self.data,'norm',args=(np.mean(self.data), np.std(self.data)))
+        stat, p = kstest(self.data,'norm')
         print('stat-%.3f, p-%.3f' % (stat,p))
-        if p<0.05:
+        if p>0.05:
             print('Không đủ bằng chứng để bác bỏ: Đây là dữ liệu phân phối chuẩn')
         else:
             print('Đấy không phải dữ liệu phân phối chuẩn')
         print('-'*50)
      
-#     def standardize(self):
-#          self.data = (self.data - np.mean(self.data))/np.std(self.data)
-        
 
     
 
@@ -92,7 +90,7 @@ def levene(a,b,c):
     stat,p_value = stats.levene(a,b,c)
     print('statistic by Levene  = ',stat)
     print('pvalue by Levene = ',p_value)
-    if p_value>0.05:
+    if (p_value<0.05) and (stat>0):
         print('các Features có tính thuần nhất')
     else:
         print('các Features không có tính thuần nhất')
@@ -104,12 +102,22 @@ def bartlett(a,b,c):
     stat, p_value = stats.bartlett(a,b,c)
     print('statistic by Bartlett = ',stat)
     print('pvalue by Bartlett = ',p_value)
-    if (p_value<0.05):
-        print('Không đủ bằng chứng để bác bỏ: Đây là các dữ liệu đồng nhất')
+    if (p_value<0.05) and (stat>0):
+        print('Phương sai các nhóm bằng nhau.')
     else:
-        print('Đấy không phải là các dữ liệu đồng nhất')
+        print('Phương sai các nhóm không bằng nhau.')
     print('-'*50)
     
+
+def results(p, vals=['mean1', 'mean2'], alpha=0.05):
+    cols=['score', 'p_value', 'KetLuan']
+    if p['p_value'] < alpha:
+        p['KetLuan'] = f"Chấp nhận H1 với mức ý nghĩa {alpha}"
+    if p['p_value'] >= alpha:
+        p['KetLuan'] = f"Chấp nhận H0 với mức ý nghĩa {alpha}"
+    df = pd.DataFrame(p, index=[''])
+    if vals: cols = vals + cols
+    return df[cols]
     
     
 
